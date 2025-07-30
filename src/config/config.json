@@ -1,0 +1,30 @@
+{
+  "site": {
+    "title": "LastSeenWise",
+    "base_url": "https://lastseenwise.com",
+    "base_path": "/",
+    "trailing_slash": true,
+    "favicon": "/images/favicon.ico",
+    "logo": "/images/logo.png",
+    "logo_width": "47",
+    "logo_height": "47",
+    "logo_text": "LastSeenWise"
+  },
+
+  "params": {
+    "footer_description": "A privacy-first WhatsApp status analyzer. Analyze online patterns, stay informed in real-time.",
+    "email": "support@lastseenwise.com",
+    "location": "Privacy-focused, data stays on your device",
+    "phone": "",
+    "contact_form_action": "#",
+    "copyright": "Copyright © 2024 LastSeenWise. Your data stays private on your device."
+},
+
+  "metadata": {
+    "meta_author": "LastSeenWise",
+    "meta_image": "/images/logo.png",
+    "meta_description": "LastSeenWise - A privacy-first WhatsApp status analyzer. Analyze online patterns, stay informed in real-time. All data processed locally.",
+    "meta_keywords": ["WhatsApp", "status analyzer", "privacy", "online tracking", "notifications", "LastSeenWise"],
+    "meta_application_name": "LastSeenWise"
+  }
+}

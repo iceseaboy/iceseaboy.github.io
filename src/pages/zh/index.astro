@@ -1,0 +1,54 @@
+---
+import { getEntryBySlug } from "astro:content";
+import Section from "@/components/core/Section.astro";
+import Features from "@/components/Features.astro";
+import Base from "@/layouts/Base.astro";
+import Cta from "@/layouts/partials/Cta.astro";
+
+const homepage = await getEntryBySlug("homepage", "zh");
+const { banner, sections, features, faq, call_to_action } = homepage.data;
+---
+
+<Base title="LastSeenWise - 好友状态分析助手">
+  <!-- banner -->
+  <section class="lg:mb-10 animate-fade-in">
+    <Section section={banner} />
+  </section>
+  <!-- multi section -->
+  {
+    sections && (
+      <section class="multi-section">
+        {sections.map((section) => (
+          <Section section={section} />
+        ))}
+      </section>
+    )
+  }
+  <!-- key features -->
+  <Features features={features} />
+  <!-- FAQ section -->
+  {faq && (
+    <section class="section-sm">
+      <div class="container">
+        <div class="row items-center justify-between">
+          <div class="mb-[40px]">
+            <h2 class="mb-4 text-h2">{faq.title}</h2>
+            <p class="text-dark dark:text-darkmode-dark">{faq.description}</p>
+          </div>
+          <div class="service-carousel row">
+            {faq.questions.map((item) => (
+              <div class="md:col-4 xl:col-3 mb-8">
+                <div class="feature-card rounded-xl bg-theme-light p-8 text-center dark:bg-darkmode-theme-light">
+                  <h4 class="mb-5 text-h5">{item.question}</h4>
+                  <p class="text-dark dark:text-darkmode-dark">{item.answer}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+  <!-- call to action -->
+  <Cta {...call_to_action} />
+</Base>
