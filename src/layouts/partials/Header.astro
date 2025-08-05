@@ -4,12 +4,18 @@ import ThemeToggle from "@/components/core/ThemeToggle.astro";
 import menu from "@/config/menu.json";
 
 export interface ChildNavigationLink {
-  name: string;
+  label: {
+    en: string;
+    zh: string;
+  };
   url: string;
 }
 
 export interface NavigationLink {
-  name: string;
+  label: {
+    en: string;
+    zh: string;
+  };
   url: string;
   hasChildren?: boolean;
   children?: ChildNavigationLink[];
@@ -17,6 +23,30 @@ export interface NavigationLink {
 
 const { main }: { main: NavigationLink[] } = menu;
 const { pathname } = Astro.url;
+
+const isZh = pathname.startsWith('/zh');
+const lang = isZh ? 'zh' : 'en';
+
+function localizeUrl(baseUrl: string): string {
+  const url = isZh ? `/zh${baseUrl}` : baseUrl;
+  // Don't add a trailing slash to the root path or anchor links.
+  if (url === '/' || url.includes('#')) {
+    return url;
+  }
+  // Add trailing slash if it's missing
+  return url.endsWith('/') ? url : `${url}/`;
+}
+
+function getLanguageSwitchPath(pathname: string): { href: string; label: string } {
+  const isZh = pathname.startsWith('/zh');
+  const newPath = isZh ? pathname.replace(/^\/zh/, '') || '/' : `/zh${pathname}`;
+  return {
+    href: newPath,
+    label: isZh ? 'EN' : '中文',
+  };
+}
+
+const languageSwitch = getLanguageSwitchPath(pathname);
 ---
 
 <header class="header">
@@ -25,36 +55,21 @@ const { pathname } = Astro.url;
     <div class="order-0">
       <Logo />
     </div>
+
     <!-- navbar toggler -->
     <input id="nav-toggle" type="checkbox" class="hidden" />
-    <label
-      id="show-button"
-      for="nav-toggle"
-      class="order-2 flex cursor-pointer items-center lg:order-1 lg:hidden mr-6"
-    >
+    <label for="nav-toggle" class="order-2 flex cursor-pointer items-center lg:order-1 lg:hidden mr-6">
+      <svg class="h-6 fill-current" viewBox="0 0 20 20"><path d="M0 3h20v2H0V3z m0 6h20v2H0V9z m0 6h20v2H0V0z" /></svg>
+    </label>
+    <label for="nav-toggle" class="order-2 hidden cursor-pointer items-center lg:order-1 mr-6">
       <svg class="h-6 fill-current" viewBox="0 0 20 20">
-        <title>Menu Open</title>
-        <path d="M0 3h20v2H0V3z m0 6h20v2H0V9z m0 6h20v2H0V0z"></path>
+        <polygon points="11 9 22 9 22 11 11 11 11 22 9 22 9 11 -2 11 -2 9 9 9 9 -2 11 -2"
+          transform="rotate(45 10 10)" />
       </svg>
     </label>
-    <label
-      id="hide-button"
-      for="nav-toggle"
-      class="order-2 hidden cursor-pointer items-center lg:order-1 mr-6"
-    >
-      <svg class="h-6 fill-current" viewBox="0 0 20 20">
-        <title>Menu Close</title>
-        <polygon
-          points="11 9 22 9 22 11 11 11 11 22 9 22 9 11 -2 11 -2 9 9 9 9 -2 11 -2"
-          transform="rotate(45 10 10)"></polygon>
-      </svg>
-    </label>
-    <!-- /navbar toggler -->
 
-    <ul
-      id="nav-menu"
-      class="navbar-nav order-3 hidden w-full lg:order-1 lg:flex lg:w-auto lg:space-x-2 "
-    >
+    <!-- nav menu -->
+    <ul id="nav-menu" class="navbar-nav order-3 hidden w-full lg:order-1 lg:flex lg:w-auto lg:space-x-2">
       {
         main.map((menu) => (
           <>
@@ -62,34 +77,30 @@ const { pathname } = Astro.url;
               <li class="nav-item nav-dropdown group relative cursor-pointer dropdown-button">
                 <span
                   class={`nav-link inline-flex items-center ${
-                    menu.children?.map(({ url }) => url).includes(pathname) ||
-                    menu.children
-                      ?.map(({ url }) => `${url}/`)
-                      .includes(pathname)
-                      ? "active"
-                      : ""
+                    menu.children?.some(({ url }) => pathname === url || pathname === `${url}/` || pathname === `/zh${url}` || pathname === `/zh${url}/`)
+                      ? "active" : ""
                   }`}
                 >
-                  {menu.name}
-                  <svg class="h-4 w-4 fill-current" viewBox="0 0 20 20">
+                  {menu.label?.[lang] ?? "Untitled"}
+                  <svg class="h-4 w-4 fill-current ml-1" viewBox="0 0 20 20">
                     <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
                   </svg>
                 </span>
-                <ul
-                  id="dropdown"
-                  class="nav-dropdown-list"
-                >
+                <ul class="nav-dropdown-list">
                   {menu.children?.map((child) => (
                     <li class="nav-dropdown-item">
                       <a
-                        href={child.url}
+                        href={localizeUrl(child.url)}
                         class={`nav-dropdown-link block ${
-                          (pathname === `${child.url}/` ||
-                            pathname === child.url) &&
-                          "text-secondary"
+                          pathname === child.url ||
+                          pathname === `${child.url}/` ||
+                          pathname === `/zh${child.url}` ||
+                          pathname === `/zh${child.url}/`
+                            ? "text-secondary"
+                            : ""
                         }`}
                       >
-                        {child.name}
+                        {child.label?.[lang] ?? "Untitled"}
                       </a>
                     </li>
                   ))}
@@ -98,13 +109,17 @@ const { pathname } = Astro.url;
             ) : (
               <li class="nav-item">
                 <a
-                  href={menu.url}
+                  href={localizeUrl(menu.url)}
                   class={`nav-link inline-block lg:block ${
-                    (pathname === `${menu.url}/` || pathname === menu.url) &&
-                    "active"
+                    pathname === menu.url ||
+                    pathname === `${menu.url}/` ||
+                    pathname === `/zh${menu.url}` ||
+                    pathname === `/zh${menu.url}/`
+                      ? "active"
+                      : ""
                   }`}
                 >
-                  {menu.name}
+                  {menu.label?.[lang] ?? "Untitled"}
                 </a>
               </li>
             )}
@@ -112,33 +127,26 @@ const { pathname } = Astro.url;
         ))
       }
     </ul>
+
+    <!-- language switch + theme -->
     <div class="order-1 ml-auto absolute right-3 top-3 items-center md:order-2 md:ml-0 lg:relative lg:right-0 lg:flex lg:top-0">
-      <!-- Language Switcher -->
       <div class="language-switcher mr-4">
-        {pathname.startsWith('/zh') ? (
-          <a href="/" class="text-sm hover:text-accent transition-colors duration-200">
-            EN
-          </a>
-        ) : (
-          <a href="/zh/" class="text-sm hover:text-accent transition-colors duration-200">
-            中文
-          </a>
-        )}
+        <a href={languageSwitch.href} class="text-sm hover:text-accent transition-colors duration-200">
+          {languageSwitch.label}
+        </a>
       </div>
       <ThemeToggle />
     </div>
-  </header>
-</nav>
+  </nav>
+</header>
 
 <script is:inline>
   function initDropdownListeners() {
     document.querySelectorAll(".dropdown-button").forEach((button) => {
       const dropdown = button.closest(".nav-dropdown");
       function toggleDropdown(e) {
-        e.stopPropagation(); // Evitar eventos innecesarios
+        e.stopPropagation();
         dropdown.classList.toggle("open");
-
-        // Cierra otros dropdowns abiertos
         document.querySelectorAll(".nav-dropdown").forEach((otherDropdown) => {
           if (otherDropdown !== dropdown) {
             otherDropdown.classList.remove("open");
@@ -149,7 +157,6 @@ const { pathname } = Astro.url;
       button.addEventListener("click", toggleDropdown);
     });
   }
-  // Asegura que los eventos se reasignen después de cada navegación
   document.addEventListener("astro:page-load", () => {
     initDropdownListeners();
   });

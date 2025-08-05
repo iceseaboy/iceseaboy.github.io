@@ -39,7 +39,21 @@ const indexPage = defineCollection({
   type: "content",
   schema: indexSchema,
 });
+const legalCollection = defineCollection({
+  type: "content",
+  schema: z.object({
+    title: z.string(),
+    lang: z.string().optional(),
+  }),
+});
 
+const supportCollection = defineCollection({
+  type: "content",
+  schema: z.object({
+    title: z.string(),
+    lang: z.string().optional(),
+  }),
+});
 // Export collections
 export const collections = {
   about: pagesCollection,
@@ -48,6 +62,8 @@ export const collections = {
   features: pagesCollection,
   homepage: indexPage,
   pages: pagesCollection,
+  legal: legalCollection,
+  support: supportCollection,
 };
 
 

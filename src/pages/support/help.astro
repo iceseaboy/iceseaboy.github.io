@@ -1,0 +1,34 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '@/layouts/Base.astro';
+
+const collection = await getCollection('support');
+// 尝试不同的匹配方式
+let entry = collection.find((e) => e.slug === 'help.en');
+if (!entry) {
+  entry = collection.find((e) => e.id === 'help.en.md');
+}
+if (!entry) {
+  entry = collection.find((e) => e.id.includes('help') && e.id.includes('en'));
+}
+
+if (!entry) {
+  throw new Error(`Help entry not found. Available entries: ${collection.map(e => e.slug).join(', ')}`);
+}
+
+const { Content } = await entry.render();
+---
+
+<Layout>
+  <section class="py-16">
+    <div class="container">
+      <div class="mx-auto max-w-4xl">
+        <h1 class="text-3xl font-bold mb-8">{entry.data.title}</h1>
+        <div class="prose prose-lg dark:prose-invert">
+          <Content />
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+

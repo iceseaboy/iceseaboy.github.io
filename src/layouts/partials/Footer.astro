@@ -5,62 +5,78 @@ import config from "@/config/config.json";
 import menu from "@/config/menu.json";
 import social from "@/config/social.json";
 import { markdownify } from "@/lib/utils/textConverter";
+
 const { footer } = menu;
 const { copyright, location, email, phone, footer_description } = config.params;
 
+const isZh = Astro.url.pathname.startsWith('/zh');
+const lang = isZh ? 'zh' : 'en';
+
 const has_social = Object.entries(social).some(
-  ([key, value]) => key != "title" && value
+  ([key, value]) => key !== "title" && value
 );
+
+const getFooterTitle = {
+  en: "Quick Links",
+  zh: "快速链接"
+};
+
+const getContactTitle = {
+  en: "Location & Contact",
+  zh: "联系我们"
+};
 ---
 
 <footer class="footer border-t border-border mx-4">
   <div class="container">
     <div class="gx-5 row pb-10 pt-[52px]">
+      <!-- Logo & Description -->
       <div class="col-12 mt-12 md:col-6 lg:col-3">
         <Logo />
-        <p class="mt-6">
-          {footer_description}
-        </p>
+        <p class="mt-6">{footer_description}</p>
         <p class="mt-6" set:html={markdownify(copyright)} />
       </div>
+
+      <!-- Social + Quick Links -->
       {
         has_social && (
           <>
             <div class="col-12 mt-12 md:col-6 lg:col-3">
-              <h6>{social.title ?? "Social"}</h6>
+              <h6>{social.title ?? (lang === 'zh' ? '社交平台' : 'Social')}</h6>
               <Social source={social} className="social-icons mt-4 lg:mt-6" />
             </div>
+
             <div class="col-12 mt-12 md:col-6 lg:col-3">
-              <h6>Quick Links</h6>
+              <h6>{getFooterTitle[lang]}</h6>
               <ul>
-                {footer.map((item, i) => (
-                  <li class={footer.length - 1 === i ? "mb-0" : "mb-4"}>
-                    <a
-                      class="hover:text-primary hover:underline "
-                      href={item.url}
-                    >
-                      {item.name}
-                    </a>
-                  </li>
-                ))}
+                {
+                  footer.map((item, i) => (
+                    <li class={footer.length - 1 === i ? "mb-0" : "mb-4"}>
+                      <a
+                        class="hover:text-primary hover:underline"
+                        href={isZh ? `/zh${item.url}` : item.url}
+                      >
+                        {item.label?.[lang] ?? "Untitled"}
+                      </a>
+                    </li>
+                  ))
+                }
               </ul>
             </div>
           </>
         )
       }
+
+      <!-- Location & Contact -->
       <div class="col-12 mt-12 md:col-6 lg:col-3">
-        <h6>Location & Contact</h6>
+        <h6>{getContactTitle[lang]}</h6>
         <ul>
           <li class="mb-2">{location}</li>
           <li class="mb-2">
-            <a class="mb-2 hover:text-primary" href={`mailto:${email}`}>
-              {email}
-            </a>
+            <a class="hover:text-primary" href={`mailto:${email}`}>{email}</a>
           </li>
           <li>
-            <a class="hover:text-primary hover:underline" href={`tel:${phone}`}>
-              {phone}
-            </a>
+            <a class="hover:text-primary hover:underline" href={`tel:${phone}`}>{phone}</a>
           </li>
         </ul>
       </div>

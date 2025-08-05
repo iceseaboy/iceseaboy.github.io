@@ -1,7 +1,49 @@
 {
   "main": [
+    {
+      "label": {
+        "en": "Privacy Policy",
+        "zh": "隐私政策"
+      },
+      "url": "/legal/privacy/"
+    },
+    {
+      "label": {
+        "en": "Terms & Conditions",
+        "zh": "服务条款"
+      },
+      "url": "/legal/terms/"
+    },
+    {
+      "label": {
+        "en": "Help & Support",
+        "zh": "帮助支持"
+      },
+      "url": "/support/help/"
+    }
   ],
-
   "footer": [
+    {
+      "label": {
+        "en": "Privacy Policy",
+        "zh": "隐私政策"
+      },
+      "url": "/legal/privacy/"
+    },
+    {
+      "label": {
+        "en": "Terms & Conditions",
+        "zh": "服务条款"
+      },
+      "url": "/legal/terms/"
+    },
+    {
+      "label": {
+        "en": "Help & Support",
+        "zh": "帮助支持"
+      },
+      "url": "/support/help/"
+    }
   ]
 }
+
