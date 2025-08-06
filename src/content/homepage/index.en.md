@@ -43,7 +43,7 @@ call_to_action:
   description: "Join thousands of teams already using LastSeenWise to improve productivity and collaboration."
   button: 
     label: "Start Free Trial"
-    href: "#contact"
+    href: "https://groups.google.com/u/1/g/lastseenwise-beta"
     color: accent
 
 ---

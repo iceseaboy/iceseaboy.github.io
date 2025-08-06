@@ -8,7 +8,7 @@ banner:
   image: /images/logo_v5_xl_pfp.webp
   buttons:
     - label: 前往 Google Play 下载
-      href: "https://play.google.com/store/search?q=LastSeenWise"
+      href: "https://groups.google.com/u/1/g/lastseenwise-beta"
       target: "_blank"
       icon: _Download
       addClasses: "w-full bg-gray-900 text-white hover:bg-accent dark:border-white/10 dark:border"
@@ -84,7 +84,7 @@ call_to_action:
   description: "立即下载 LastSeenWise，开始在完全隐私保护下追踪 WhatsApp 活动。**你的数据保留在你的设备上。**"
   button: 
     label: "前往 Google Play 下载"
-    href: "https://play.google.com/store/search?q=LastSeenWise"
+    href: "https://groups.google.com/u/1/g/lastseenwise-beta"
     color: accent
 
 ---
