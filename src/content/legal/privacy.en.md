@@ -5,7 +5,7 @@ lang: "en"
 
 # Privacy Policy
 
-_Last updated: August 4, 2025_
+**_Last updated: Sep 1, 2025_**
 
 This privacy policy applies to the FreeLastSeen: WA Activity View mobile application ("we," "us," "our") and governs your use of the app and our website. This policy complies with international privacy regulations including the GDPR, CalOPPA, and CCPA.
 
