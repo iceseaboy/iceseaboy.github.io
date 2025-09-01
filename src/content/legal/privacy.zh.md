@@ -7,7 +7,9 @@ lang: "zh"
 
 _最后更新：2025年8月4日_
 
-本隐私政策适用于 LastSeenWise 移动应用程序（以下简称“我们”）及其网站的使用，符合 GDPR、CalOPPA 和 CCPA 等国际隐私法规的要求。
+本隐私政策适用于 FreeLastSeen: WA Activity View 移动应用程序（以下简称"我们"）及其网站的使用，符合 GDPR、CalOPPA 和 CCPA 等国际隐私法规的要求。
+
+**开发者/法律实体：** 梅尔摩斯
 
 ---
 
