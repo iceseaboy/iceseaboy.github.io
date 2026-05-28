@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp 绑定二维码 · LastSeen</title>
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --card: #1a1a1a;
+      --text: #f5f5f5;
+      --accent: #25D366;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .header h1 {
+      font-size: 22px;
+      margin: 0 0 8px;
+      color: #fff;
+    }
+    .header p {
+      margin: 0;
+      color: #aaa;
+      font-size: 14px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      margin-bottom: 20px;
+    }
+    .instructions {
+      background: #111;
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 24px;
+      font-size: 15px;
+    }
+    .instructions ol {
+      margin: 12px 0 0;
+      padding-left: 20px;
+    }
+    .instructions li {
+      margin-bottom: 8px;
+    }
+    .qr-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 20px 0;
+      min-height: 320px;
+    }
+    #qrcode {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .qr-wrapper img, .qr-wrapper canvas {
+      max-width: 100%;
+      height: auto !important;
+      width: 100% !important;
+      max-width: 320px !important;
+      image-rendering: crisp-edges;
+    }
+    .status {
+      text-align: center;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin: 16px 0;
+    }
+    .status.waiting {
+      background: #2a2a00;
+      color: #ffeb3b;
+    }
+    .status.ready {
+      background: #002a00;
+      color: #4ade80;
+    }
+    .status.error {
+      background: #3a0000;
+      color: #f87171;
+    }
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: #666;
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid #222;
+    }
+    .footer a {
+      color: #25D366;
+      text-decoration: none;
+    }
+    .raw {
+      font-family: monospace;
+      font-size: 11px;
+      word-break: break-all;
+      background: #111;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 12px;
+      color: #888;
+      max-height: 80px;
+      overflow: auto;
+    }
+    .btn {
+      display: inline-block;
+      background: #25D366;
+      color: #000;
+      font-weight: 600;
+      padding: 10px 18px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 14px;
+      margin: 4px;
+    }
+    .btn.secondary {
+      background: #333;
+      color: #fff;
+    }
+    .hint {
+      font-size: 13px;
+      color: #888;
+      text-align: center;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>WhatsApp 绑定二维码</h1>
+      <p>LastSeen · 副设备登录</p>
+    </div>
+
+    <div class="card">
+      <div class="instructions">
+        <strong>操作步骤（必须用主设备摄像头扫码）</strong>
+        <ol>
+          <li>在<strong>主 WhatsApp 手机</strong>上打开 WhatsApp</li>
+          <li>进入「设置」→「链接设备」</li>
+          <li>点击「链接设备」，对准下方二维码扫描</li>
+          <li>在主设备上确认登录即可完成绑定</li>
+        </ol>
+      </div>
+
+      <div id="status" class="status waiting">等待二维码数据...</div>
+
+      <div class="qr-wrapper">
+        <div id="qrcode"></div>
+      </div>
+
+      <div class="hint">
+        二维码较大时更容易被摄像头识别<br>
+        如二维码已过期，请返回 App 获取最新链接后刷新本页
+      </div>
+    </div>
+
+    <div class="card" style="padding: 16px 18px;">
+      <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
+        <a href="#" id="refreshBtn" class="btn secondary">刷新页面</a>
+        <a href="#" id="copyBtn" class="btn">复制当前链接</a>
+      </div>
+      <div id="rawPayload" class="raw" style="display:none;"></div>
+    </div>
+
+    <div class="footer">
+      此页面<strong>不存储</strong>任何数据<br>
+      所有二维码信息仅存在于您当前打开的链接中<br>
+      关闭页面即失效 · 由您自行保管链接安全
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+  <script>
+    (function() {
+      const statusEl = document.getElementById('status');
+      const qrContainer = document.getElementById('qrcode');
+      const rawEl = document.getElementById('rawPayload');
+      const copyBtn = document.getElementById('copyBtn');
+      const refreshBtn = document.getElementById('refreshBtn');
+
+      let currentQRCode = null;
+
+      function showStatus(msg, type) {
+        statusEl.textContent = msg;
+        statusEl.className = 'status ' + (type || 'waiting');
+      }
+
+      function clearQR() {
+        qrContainer.innerHTML = '';
+        if (currentQRCode) {
+          currentQRCode = null;
+        }
+      }
+
+      function renderQR(payload) {
+        if (!payload) {
+          showStatus('未收到二维码数据', 'error');
+          return;
+        }
+
+        clearQR();
+
+        try {
+          currentQRCode = new QRCode(qrContainer, {
+            text: payload,
+            width: 320,
+            height: 320,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+          });
+
+          rawEl.textContent = payload;
+          rawEl.style.display = 'block';
+
+          showStatus('二维码已生成 · 请用主设备摄像头扫描', 'ready');
+        } catch (e) {
+          console.error(e);
+          showStatus('二维码渲染失败: ' + e.message, 'error');
+        }
+      }
+
+      function loadFromHash() {
+        const hash = location.hash.slice(1);
+        if (!hash) {
+          showStatus('请从 LastSeen App 打开带二维码的链接', 'waiting');
+          rawEl.style.display = 'none';
+          return;
+        }
+
+        let payload;
+        try {
+          payload = decodeURIComponent(hash);
+        } catch (e) {
+          payload = hash;
+        }
+
+        renderQR(payload);
+      }
+
+      copyBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const url = location.href;
+        navigator.clipboard.writeText(url).then(() => {
+          const originalText = copyBtn.textContent;
+          copyBtn.textContent = '已复制！';
+          setTimeout(() => {
+            copyBtn.textContent = originalText;
+          }, 1500);
+        }).catch(() => {
+          prompt('请手动复制以下链接：', url);
+        });
+      });
+
+      refreshBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        location.reload();
+      });
+
+      window.addEventListener('hashchange', loadFromHash);
+
+      loadFromHash();
+
+      if (!location.hash) {
+        showStatus('等待二维码数据...（请从 App 复制最新链接）', 'waiting');
+      }
+    })();
+  </script>
+</body>
+</html>
