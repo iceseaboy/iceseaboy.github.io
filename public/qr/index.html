@@ -193,6 +193,7 @@
     </div>
   </div>
 
+  <!-- 使用 jsDelivr 加载轻量 qrcode.js（生产环境推荐） -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
   <script>
@@ -223,16 +224,18 @@
           return;
         }
 
+        // 清理旧的
         clearQR();
 
         try {
+          // 生成二维码（尺寸较大，便于手机摄像头扫描）
           currentQRCode = new QRCode(qrContainer, {
             text: payload,
             width: 320,
             height: 320,
             colorDark: "#000000",
             colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
+            correctLevel: QRCode.CorrectLevel.H   // 高容错，便于扫描
           });
 
           rawEl.textContent = payload;
@@ -257,12 +260,13 @@
         try {
           payload = decodeURIComponent(hash);
         } catch (e) {
-          payload = hash;
+          payload = hash; // 容错
         }
 
         renderQR(payload);
       }
 
+      // 复制当前完整链接
       copyBtn.addEventListener('click', function(e) {
         e.preventDefault();
         const url = location.href;
@@ -273,6 +277,7 @@
             copyBtn.textContent = originalText;
           }, 1500);
         }).catch(() => {
+          // 降级方案
           prompt('请手动复制以下链接：', url);
         });
       });
@@ -282,10 +287,13 @@
         location.reload();
       });
 
+      // 支持 hash 变化（用户可手动修改）
       window.addEventListener('hashchange', loadFromHash);
 
+      // 初始加载
       loadFromHash();
 
+      // 如果没有 payload，给出友好提示
       if (!location.hash) {
         showStatus('等待二维码数据...（请从 App 复制最新链接）', 'waiting');
       }
