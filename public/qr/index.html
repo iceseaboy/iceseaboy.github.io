@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WhatsApp 绑定二维码 · LastSeen</title>
+  <title>WhatsApp Linking QR · LastSeen</title>
   <style>
     :root {
       --bg: #0f0f0f;
@@ -151,63 +151,49 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>WhatsApp 绑定二维码</h1>
-      <p>LastSeen · 副设备登录</p>
+      <h1>WhatsApp Linking QR</h1>
+      <p>LastSeen · Companion device login</p>
     </div>
 
     <div class="card">
       <div class="instructions">
-        <strong>操作步骤（必须用主设备摄像头扫码）</strong>
+        <strong>How to link (scan with your main phone)</strong>
         <ol>
-          <li>在 LastSeen App 中点击「复制二维码原始数据」</li>
-          <li>返回此页面，将复制的内容<strong>粘贴</strong>到上方输入框</li>
-          <li>在<strong>主 WhatsApp 手机</strong>上打开 WhatsApp → 设置 → 链接设备</li>
-          <li>对准下方生成的二维码扫描并确认</li>
+          <li>On your <strong>main WhatsApp phone</strong>, open WhatsApp</li>
+          <li>Go to <strong>Settings → Linked Devices</strong></li>
+          <li>Tap <strong>Link a device</strong> and point the camera at the QR code below</li>
+          <li>Confirm on your main phone to finish linking</li>
         </ol>
-        <div style="margin-top: 10px; font-size: 13px; color: #ffeb3b;">
-          注意：因为数据较长，我们推荐使用「复制原始数据 + 粘贴」的方式，而不是直接打开超长链接。
-        </div>
       </div>
 
-      <div id="status" class="status waiting">请在下方粘贴 App 提供的二维码原始数据</div>
-
-      <!-- 主要输入方式：粘贴（解决 URL 太长问题） -->
-      <div class="paste-area">
-        <textarea id="pasteInput" 
-                  placeholder="请从 LastSeen App 复制「二维码原始数据」后粘贴到这里..."
-                  rows="4"
-                  style="width: 100%; padding: 12px; font-family: monospace; font-size: 13px; border: 2px solid #333; border-radius: 8px; background: #111; color: #ddd; resize: vertical;"></textarea>
-        <div style="margin-top: 8px; font-size: 12px; color: #888;">
-          提示：App 中点击「复制二维码原始数据」按钮，然后回来粘贴即可
-        </div>
-      </div>
+      <div id="status" class="status waiting">Loading QR code…</div>
 
       <div class="qr-wrapper">
         <div id="qrcode"></div>
       </div>
 
       <div class="hint">
-        二维码较大时更容易被摄像头识别<br>
-        二维码数据会定期更新，请以 App 内最新数据为准
+        A larger QR code is easier for the camera to read<br>
+        The QR data rotates periodically — always use the latest link from the app
       </div>
     </div>
 
     <div class="card" style="padding: 16px 18px;">
       <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
-        <a href="#" id="refreshBtn" class="btn secondary">刷新页面</a>
-        <a href="#" id="copyBtn" class="btn">复制当前链接</a>
+        <a href="#" id="refreshBtn" class="btn secondary">Refresh</a>
+        <a href="#" id="copyBtn" class="btn">Copy link</a>
       </div>
       <div id="rawPayload" class="raw" style="display:none;"></div>
     </div>
 
     <div class="footer">
-      此页面<strong>不存储</strong>任何数据<br>
-      所有二维码信息仅存在于您当前打开的链接中<br>
-      关闭页面即失效 · 由您自行保管链接安全
+      This page stores <strong>nothing</strong><br>
+      The QR data lives only in the link you opened<br>
+      It is gone once you close the page · keep your link private
     </div>
   </div>
 
-  <!-- 使用 jsDelivr 加载轻量 qrcode.js（生产环境推荐） -->
+  <!-- Lightweight qrcode.js via jsDelivr CDN -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
   <script>
@@ -227,86 +213,66 @@
 
       function clearQR() {
         qrContainer.innerHTML = '';
-        if (currentQRCode) {
-          currentQRCode = null;
-        }
+        currentQRCode = null;
       }
 
       function renderQR(payload) {
         if (!payload) {
-          showStatus('未收到二维码数据', 'error');
+          showStatus('No QR data found', 'error');
           return;
         }
 
-        // 清理旧的
         clearQR();
 
         try {
-          // 生成二维码（尺寸较大，便于手机摄像头扫描）
+          // Larger size for easier camera scanning
           currentQRCode = new QRCode(qrContainer, {
             text: payload,
             width: 320,
             height: 320,
             colorDark: "#000000",
             colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H   // 高容错，便于扫描
+            correctLevel: QRCode.CorrectLevel.H   // high error correction
           });
 
           rawEl.textContent = payload;
           rawEl.style.display = 'block';
 
-          showStatus('二维码已生成 · 请用主设备摄像头扫描', 'ready');
+          showStatus('QR ready · scan it with your main phone', 'ready');
         } catch (e) {
           console.error(e);
-          showStatus('二维码渲染失败: ' + e.message, 'error');
+          showStatus('Failed to render QR: ' + e.message, 'error');
         }
       }
 
-      // ==================== 主要交互：支持粘贴输入（解决 URL 过长问题） ====================
-
-      const pasteInput = document.getElementById('pasteInput');
-      let debounceTimer = null;
-
-      function tryRenderFromValue(value) {
-        const trimmed = value.trim();
-        if (!trimmed) {
+      function loadFromHash() {
+        const hash = location.hash.slice(1);
+        if (!hash) {
           clearQR();
-          showStatus('请在上方粘贴 App 提供的二维码原始数据', 'waiting');
           rawEl.style.display = 'none';
+          showStatus('Waiting for QR data — open the link from the LastSeen app', 'waiting');
           return;
         }
-        renderQR(trimmed);
-        showStatus('二维码已生成 · 请用主 WhatsApp 手机扫描', 'ready');
+
+        let payload;
+        try {
+          payload = decodeURIComponent(hash);
+        } catch (e) {
+          payload = hash; // fallback
+        }
+        renderQR(payload);
       }
 
-      // 监听 textarea
-      if (pasteInput) {
-        pasteInput.addEventListener('input', function() {
-          clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(() => {
-            tryRenderFromValue(pasteInput.value);
-          }, 250);
-        });
-
-        pasteInput.addEventListener('paste', function() {
-          setTimeout(() => {
-            tryRenderFromValue(pasteInput.value);
-          }, 30);
-        });
-      }
-
-      // 复制短链接按钮
+      // Copy the full current link (including the QR data in the fragment)
       copyBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        const url = 'https://iceseaboy.github.io/qr/';
+        const url = location.href;
         navigator.clipboard.writeText(url).then(() => {
           const originalText = copyBtn.textContent;
-          copyBtn.textContent = '短链接已复制！';
-          setTimeout(() => {
-            copyBtn.textContent = originalText;
-          }, 1500);
+          copyBtn.textContent = 'Copied!';
+          setTimeout(() => { copyBtn.textContent = originalText; }, 1500);
         }).catch(() => {
-          prompt('请手动复制此短链接：', url);
+          prompt('Copy this link manually:', url);
         });
       });
 
@@ -315,31 +281,11 @@
         location.reload();
       });
 
-      // 仍然兼容旧的 hash 方式（当 URL 不太长时可用）
-      window.addEventListener('hashchange', function() {
-        const hash = location.hash.slice(1);
-        if (hash && pasteInput) {
-          try {
-            const payload = decodeURIComponent(hash);
-            pasteInput.value = payload;
-            tryRenderFromValue(payload);
-          } catch (e) {}
-        }
-      });
+      // Re-render when the link's fragment changes
+      window.addEventListener('hashchange', loadFromHash);
 
-      // 页面初始化：如果有 hash 则自动填充
-      const initialHash = location.hash.slice(1);
-      if (initialHash && pasteInput) {
-        try {
-          const payload = decodeURIComponent(initialHash);
-          pasteInput.value = payload;
-          tryRenderFromValue(payload);
-        } catch (e) {
-          showStatus('请在上方粘贴 App 提供的二维码原始数据', 'waiting');
-        }
-      } else {
-        showStatus('请在上方粘贴 App 提供的二维码原始数据', 'waiting');
-      }
+      // Initial render
+      loadFromHash();
     })();
   </script>
 </body>
