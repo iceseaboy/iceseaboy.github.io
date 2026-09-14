@@ -4,6 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WhatsApp Linking QR · LastSeen</title>
+  <!-- Google Analytics (Firebase Web app: lastseen-qr-web). page_location is fixed so the
+       QR payload in the URL fragment is never sent. Only page views and render results are counted. -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KG2KWFPXD1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-KG2KWFPXD1', {
+      send_page_view: false,
+      page_location: 'https://iceseaboy.github.io/qr/',
+      page_title: 'WhatsApp Linking QR'
+    });
+    gtag('event', 'page_view', { page_location: 'https://iceseaboy.github.io/qr/' });
+  </script>
   <style>
     :root {
       --bg: #0f0f0f;
@@ -189,7 +203,8 @@
     <div class="footer">
       This page stores <strong>nothing</strong><br>
       The QR data lives only in the link you opened<br>
-      It is gone once you close the page · keep your link private
+      It is gone once you close the page · keep your link private<br>
+      Only anonymous page-view counts are sent to Google Analytics · never the QR data
     </div>
   </div>
 
@@ -239,9 +254,11 @@
           rawEl.style.display = 'block';
 
           showStatus('QR ready · scan it with your main phone', 'ready');
+          gtag('event', 'qr_render_success');
         } catch (e) {
           console.error(e);
           showStatus('Failed to render QR: ' + e.message, 'error');
+          gtag('event', 'qr_render_failed');
         }
       }
 
