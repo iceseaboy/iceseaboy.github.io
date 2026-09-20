@@ -34,13 +34,14 @@ The app functions without requiring any of this data. The analytics service desc
 
 ## 3. Usage and Analytics Data
 
-To understand how the app is used and to find bugs, we use **Google Analytics for Firebase** in the mobile app and **Google Analytics** on the WhatsApp linking page of this website. These services are provided by Google LLC.
+To understand how the app is used and to find bugs, we use **Google Analytics for Firebase** and **Firebase Crashlytics** in the mobile app, and **Google Analytics** on the WhatsApp linking page of this website. These services are provided by Google LLC.
 
 What is collected:
 
 - Anonymous usage events, such as app opens, screen views, and whether an account linking attempt was started or completed
 - Coarse technical information, such as app version, device model, operating system version, language, and approximate country derived from IP address
 - A random app-instance identifier used to count users, which is not linked to your identity
+- Crash and error reports: the technical stack trace of the failure, app version, device model, operating system version, and a random installation identifier
 
 What is **not** collected: your phone number, WhatsApp account, contacts, chat content, online/offline records, verification codes, or the QR linking data contained in the link opened from the app. The linking page reports only that it was opened and whether the QR code was displayed; it never sends the link contents.
 
